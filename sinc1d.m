@@ -24,12 +24,12 @@ if ifl==1
     klocs=pi*klocs;
 end
 
-nx=rsamp*round(rkmax+3); % following fortran code
+nx=ceil(rsamp*round(rkmax+3)); % following fortran code
 
 [xx,ww]=lgwt(nx,-1,1);
 h_at_xx=finufft1d3(klocs,q,-1,1e-15,xx);
 
-% factor of 1/2 required for change of integration bounds from +-1/2 to +-1
+% factor of 1/2 required for change of integration bounds
 wtrans=0.5*finufft1d3(xx,h_at_xx.*ww,1,1e-15,klocs);
 
 % only return real values
@@ -43,12 +43,18 @@ resultmat=zeros(n,numtrials);
 
 for t=1:numtrials
     klocs=(-pi)+(pi*2*rand(n,1));
-    q=.1+rand(n,1)*5;
+    q=.1+rand(1,n)*5;
     ifl=1;
-    if size(q,2)==1
-        q=q.';
+    my_wtrans= sinc1d(ifl,klocs,q,2);
+    correct_wtrans=slowsinc1d(ifl,klocs,q);
+    if(size(correct_wtrans,1)~=size(my_wtrans,1))
+        correct_wtrans=correct_wtrans.';
     end
-    
+    resultmat(:,t)=correct_wtrans-my_wtrans;
+    fprintf("Error: %g\n", mean(abs(my_wtrans-correct_wtrans)));
+end
+
+function correct_wtrans=slowsinc1d(ifl,klocs,q) 
     [a,b]=ndgrid(klocs,klocs);
     if ifl==1
         sincmat=sin(pi*(a-b))./(pi*(a-b));
@@ -57,12 +63,3 @@ for t=1:numtrials
     end
     sincmat(arrayfun(@isnan,sincmat))=1;
     correct_wtrans=sum(repmat(q,length(q),1).*sincmat,2);
-
-    my_wtrans= sinc1d(ifl,klocs,q,2);
-    if(size(correct_wtrans,1)~=size(my_wtrans,1))
-        correct_wtrans=correct_wtrans.';
-    end
-    resultmat(:,t)=correct_wtrans-my_wtrans;
-    fprintf("Error: %g\n", mean(abs(my_wtrans-correct_wtrans)));
-end
-
