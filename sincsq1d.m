@@ -19,7 +19,7 @@ if ifl==1
     klocs=pi*klocs;
 end
 
-nx=rsamp*round(rkmax+3);
+nx=ceil(rsamp*round(rkmax+3));
 [xx_pre,ww_pre]=lgwt(nx,-1,1);
 
 % quadrature points and weights to cover [-2,2]
@@ -44,7 +44,12 @@ for numt=1:numtrials
     klocs=rand(n,1);
     q=rand(1,n); 
     ifl=1;
+    correct_wtrans=slowsincsq1d(ifl,klocs,q);
+    my_wtrans= sincsq1d(ifl,klocs,q,2);
+    fprintf("Error: %g\n", mean(abs(my_wtrans-correct_wtrans)));
+end
 
+function correct_wtrans=slowsincsq1d(ifl,klocs,q)
     [a,b]=ndgrid(klocs,klocs);
     repmat(q,length(q),1);
     if ifl==1
@@ -54,10 +59,3 @@ for numt=1:numtrials
     end
     sincmat(arrayfun(@isnan,sincmat))=1;
     correct_wtrans=sum(repmat(q,length(q),1).*sincmat,2);
-    my_wtrans= sincsq1d(ifl,klocs,q,2);
-    fprintf("Error: %g\n", mean(abs(my_wtrans-correct_wtrans)));
-end
-
-
-
-
