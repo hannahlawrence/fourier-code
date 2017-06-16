@@ -26,9 +26,9 @@ if ifl==1
     klocs_d2=pi*klocs_d2;
     klocs_d3=pi*klocs_d3;
 end
-nx=rsamp*round(rkmaxx+3); 
-ny=rsamp*round(rkmaxy+3);
-nz=rsamp*round(rkmaxz+3);
+nx=ceil(rsamp*round(rkmaxx+3)); 
+ny=ceil(rsamp*round(rkmaxy+3));
+nz=ceil(rsamp*round(rkmaxz+3));
 
 [xx,wwx]=lgwt(nx,-1,1);
 [yy,wwy]=lgwt(ny,-1,1);
@@ -55,7 +55,12 @@ for t=1:numtrials
     klocs_d3=-pi+(2*pi*rand(n,1));
     q=rand(1,n)*3; 
     ifl=0;
+    correct=slowsinc3d(ifl,klocs_d1,klocs_d2,klocs_d3,q);
+    myresult=sinc3d(ifl,klocs_d1,klocs_d2,klocs_d3,q,2);
+    fprintf("Error: %g\n",mean(abs(correct-myresult)));
+end
 
+function correct=slowsinc3d(ifl,klocs_d1,klocs_d2,klocs_d3,q)
     [a1,b1]=ndgrid(klocs_d1,klocs_d1);
     [a2,b2]=ndgrid(klocs_d2,klocs_d2);
     [a3,b3]=ndgrid(klocs_d3,klocs_d3);
@@ -72,7 +77,4 @@ for t=1:numtrials
     y(arrayfun(@isnan,y))=1;
     z(arrayfun(@isnan,z))=1;
     sincmat=x.*y.*z;
-    correct_fast=sum(repmat(q,length(klocs_d1),1).*sincmat,2); 
-    myresult=sinc3d(ifl,klocs_d1,klocs_d2,klocs_d3,q,2);
-    fprintf("Error: %g\n",mean(abs(correct_fast-myresult)));
-end
+    correct=sum(repmat(q,length(klocs_d1),1).*sincmat,2);
