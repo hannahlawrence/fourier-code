@@ -22,8 +22,8 @@ if ifl==1
     klocs_d1=pi*klocs_d1;
     klocs_d2=pi*klocs_d2;
 end
-nx=(rsamp*round(rkmaxx+3)); 
-ny=(rsamp*round(rkmaxy+3));
+nx=ceil(rsamp*round(rkmaxx+3)); 
+ny=ceil(rsamp*round(rkmaxy+3));
 
 [xx,wwx]=lgwt(nx,-1,1);
 [yy,wwy]=lgwt(ny,-1,1);
@@ -57,7 +57,11 @@ for t=1:numtrials
     ifl=0;
 
     myresult=sincsq2d(ifl,klocs_d1,klocs_d2,q,2);
+    correct=slowsincsq2d(ifl,klocs_d1,klocs_d2,q);
+    fprintf("Error: %g\n",mean(abs(correct-myresult)));
+end
 
+function correct=slowsincsq2d(ifl,klocs_d1,klocs_d2,q)
     [a1,b1]=ndgrid(klocs_d1,klocs_d1);
     [a2,b2]=ndgrid(klocs_d2,klocs_d2);
     if ifl==1
@@ -71,7 +75,7 @@ for t=1:numtrials
     y(arrayfun(@isnan,y))=1;
     sincmat=x.*y;
     sincmat=sincmat.^2;
-    correct_fast=sum(repmat(q,length(klocs_d1),1).*sincmat,2); 
+    correct=sum(repmat(q,length(klocs_d1),1).*sincmat,2); 
 
     results=zeros(length(klocs_d1),1);
     for i=1:length(klocs_d1)
@@ -98,16 +102,6 @@ for t=1:numtrials
         end
     end
 
-    if results ~= correct_fast
+    if results ~= correct
         fprintf("answer keys don't match!\n");
     end
-
-    fprintf("Error: %g\n",mean(abs(correct_fast-myresult)));
-end
-
-        
-
-
-
-
-
