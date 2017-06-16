@@ -26,9 +26,9 @@ if ifl==1
     klocs_d2=pi*klocs_d2;
     klocs_d3=pi*klocs_d3;
 end
-nx=(rsamp*round(rkmaxx+3)); 
-ny=(rsamp*round(rkmaxy+3));
-nz=(rsamp*round(rkmaxz+3));
+nx=ceil(rsamp*round(rkmaxx+3)); 
+ny=ceil(rsamp*round(rkmaxy+3));
+nz=ceil(rsamp*round(rkmaxz+3));
 
 [xx,wwx]=lgwt(nx,-1,1);
 [yy,wwy]=lgwt(ny,-1,1);
@@ -65,7 +65,12 @@ for t=1:numtrials
     klocs_d3=-pi+(2*pi*rand(n,1));
     q=rand(1,n)*3; 
     ifl=1;
+    correct=slowsincsq3d(ifl,klocs_d1,klocs_d2,klocs_d3,q);
     myresult=sincsq3d(ifl,klocs_d1,klocs_d2,klocs_d3,q,2);
+    fprintf("Error: %g\n",mean(abs(correct-myresult)));
+end
+
+function correct=slowsincsq3d(ifl,klocs_d1,klocs_d2,klocs_d3,q)
     [a1,b1]=ndgrid(klocs_d1,klocs_d1);
     [a2,b2]=ndgrid(klocs_d2,klocs_d2);
     [a3,b3]=ndgrid(klocs_d3,klocs_d3);
@@ -83,7 +88,7 @@ for t=1:numtrials
     z(arrayfun(@isnan,z))=1;
     sincmat=x.*y.*z;
     sincmat=sincmat.^2;
-    correct_fast=sum(repmat(q,length(klocs_d1),1).*sincmat,2); % column vector
+    correct=sum(repmat(q,length(klocs_d1),1).*sincmat,2); % column vector
 
     results=zeros(length(klocs_d1),1);
     for i=1:length(klocs_d1)
@@ -119,15 +124,6 @@ for t=1:numtrials
         end
     end
 
-    if results ~= correct_fast
+    if results ~= correct
         fprintf("answer keys don't match!\n");
     end
-    fprintf("Error: %g\n",mean(abs(correct_fast-myresult)));
-end
-
-
-
-
-
-
-
