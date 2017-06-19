@@ -27,7 +27,7 @@ nx=ceil(rsamp*round(rkmax+3));
 
 % quadrature points and weights to cover [-2,2]
 xx=vertcat((xx_pre-1),(xx_pre+1));
-ww=vertcat((ww_pre-1),(ww_pre+1));
+ww=vertcat(ww_pre,ww_pre);
 
 h_at_xx=finufft1d3(klocs,q,-1,newtol,xx);
 
