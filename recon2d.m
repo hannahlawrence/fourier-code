@@ -88,7 +88,7 @@ for i=1:numunif
         c=c+1;
     end
 end
-unifspace=((max(unifpts)-min(unifpts))/(length(unifpts)-1))
+unifspace=((max(unifpts)-min(unifpts))/(length(unifpts)-1));
 f_true=sin(exp(allunifx))+sin(exp(allunify)); 
 klocs_d1=NU_lb+(NU_ub-NU_lb)*rand(numNU,1);
 klocs_d2=NU_lb+(NU_ub-NU_lb)*rand(numNU,1);
